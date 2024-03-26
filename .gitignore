@@ -1,2 +1,89 @@
 # Google App Engine generated folder
 appengine-generated/
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the screen
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Snake Game")
+
+# Colors
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+
+# Snake characteristics
+BLOCK_SIZE = 20
+SNAKE_SPEED = 10
+
+# Define functions
+def draw_snake(snake):
+    for block in snake:
+        pygame.draw.rect(screen, GREEN, (block[0], block[1], BLOCK_SIZE, BLOCK_SIZE))
+
+def draw_food(food):
+    pygame.draw.rect(screen, RED, (food[0], food[1], BLOCK_SIZE, BLOCK_SIZE))
+
+def move_snake(snake, direction):
+    x, y = snake[0]
+    if direction == 'UP':
+        y -= BLOCK_SIZE
+    elif direction == 'DOWN':
+        y += BLOCK_SIZE
+    elif direction == 'LEFT':
+        x -= BLOCK_SIZE
+    elif direction == 'RIGHT':
+        x += BLOCK_SIZE
+    snake.insert(0, (x, y))
+    return snake
+
+def generate_food():
+    x = random.randint(0, (SCREEN_WIDTH - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+    y = random.randint(0, (SCREEN_HEIGHT - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+    return (x, y)
+
+# Main game loop
+snake = [(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)]
+food = generate_food()
+direction = 'RIGHT'
+clock = pygame.time.Clock()
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and direction != 'DOWN':
+                direction = 'UP'
+            elif event.key == pygame.K_DOWN and direction != 'UP':
+                direction = 'DOWN'
+            elif event.key == pygame.K_LEFT and direction != 'RIGHT':
+                direction = 'LEFT'
+            elif event.key == pygame.K_RIGHT and direction != 'LEFT':
+                direction = 'RIGHT'
+
+    screen.fill(WHITE)
+
+    # Move the snake
+    snake = move_snake(snake, direction)
+
+    # Check for collision with the food
+    if snake[0] == food:
+        food = generate_food()
+    else:
+        snake.pop()
+
+    # Draw the snake and food
+    draw_snake(snake)
+    draw_food(food)
+
+    pygame.display.update()
+    clock.tick(SNAKE_SPEED)
+
+pygame.quit()
